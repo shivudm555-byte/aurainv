@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>Antigravity Fintech — Investment Platform & Admin Web Panel</title>
+  
+  <!-- Modern Typography Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;600;700&family=Outfit:wght@500;600;700;800;900&display=swap" rel="stylesheet">
+  
+  <!-- CSS Stylesheets -->
+  <link rel="stylesheet" href="css/base.css" />
+  <link rel="stylesheet" href="css/mobile-app.css" />
+  <link rel="stylesheet" href="css/admin-panel.css" />
+  <link rel="stylesheet" href="css/components.css" />
+</head>
+<body>
+  <div id="toast-container"></div>
+
+  <div id="app-shell">
+    <!-- Universal Top Navigation & View Mode Controller -->
+    <header class="platform-top-bar">
+      <div class="brand-badge">
+        <div class="logo-icon">₳</div>
+        <div>
+          <span>ANTIGRAVITY</span>
+          <span class="badge-sub">FINTECH PRO</span>
+        </div>
+      </div>
+
+      <!-- View Mode Switcher -->
+      <div class="view-mode-tabs">
+        <button class="view-tab-btn" data-mode="mobile_frame">
+          <span>📱</span> Mobile View
+        </button>
+        <button class="view-tab-btn" data-mode="mobile_full">
+          <span>📲</span> Full Mobile
+        </button>
+        <button class="view-tab-btn" data-mode="admin_panel">
+          <span>🖥️</span> Admin Web Panel
+        </button>
+        <button class="view-tab-btn active" data-mode="split_sync">
+          <span>⚡</span> Split-Screen Live Sync
+        </button>
+      </div>
+
+      <!-- Top Tools: User Switcher, Admin Role Switcher & Theme -->
+      <div class="top-bar-actions">
+        <!-- Quick User Picker -->
+        <div class="user-quick-picker" title="Switch active mobile app user identity">
+          <span>👤 Mobile User:</span>
+          <select id="global-user-picker">
+            <option value="5" selected>Rahul Sharma (KYC Verified - ₹50k Port)</option>
+            <option value="6">Priya Patel (KYC Pending - ₹25k Dep)</option>
+            <option value="7">Amit Verma (HNW - Pending ₹80k Wdl)</option>
+            <option value="8">Kavita Reddy (KYC Rejected)</option>
+            <option value="9">Rohan Merchant (Suspended)</option>
+          </select>
+        </div>
+
+        <!-- Admin Role Picker -->
+        <div class="user-quick-picker" title="Switch active admin authorization role">
+          <span>🛡️ Admin Role:</span>
+          <select id="admin-role-picker">
+            <option value="super_admin" selected>Super Admin (Vikramaditya)</option>
+            <option value="finance_admin">Finance Admin (Meera Nambiar)</option>
+            <option value="kyc_admin">KYC Admin (Suresh Iyer)</option>
+            <option value="ops_admin">Ops Admin (Ananya Sen)</option>
+          </select>
+        </div>
+
+        <!-- Theme Toggle -->
+        <button id="theme-toggle-btn" class="icon-btn" title="Toggle Light/Dark Theme">
+          🌙
+        </button>
+      </div>
+    </header>
+
+    <!-- Main Workspace Container -->
+    <main id="workspace-view-container" class="workspace-container">
+      
+      <!-- ===================================================================
+           LEFT: MOBILE APP WRAPPER (Smartphone Simulator)
+           =================================================================== -->
+      <section id="mobile-app-wrapper" class="mobile-view-wrapper">
+        <div class="phone-simulator-frame">
+          <!-- Dynamic Island / Notch -->
+          <div class="phone-notch-area">
+            <div class="notch-camera"></div>
+            <div class="notch-sensor"></div>
+          </div>
+
+          <!-- Phone Status Bar -->
+          <div class="phone-status-bar">
+            <span id="phone-time-clock">9:41</span>
+            <div class="status-bar-icons">
+              <span>5G</span>
+              <span>📶</span>
+              <span>🔋 98%</span>
+            </div>
+          </div>
+
+          <!-- Dynamic Screen Viewport -->
+          <div class="mobile-screen-viewport">
+            <div id="mobile-screen-content" class="screen-content-scroll">
+              <!-- Dynamically populated by MobileRouter -->
+            </div>
+
+            <!-- Bottom Navigation Bar -->
+            <nav id="mobile-bottom-nav" class="phone-bottom-nav">
+              <button class="nav-tab-item active" data-screen="home">
+                <span class="nav-icon">🏠</span>
+                <span>Home</span>
+              </button>
+              <button class="nav-tab-item" data-screen="invest_plans">
+                <span class="nav-icon">🚀</span>
+                <span>Invest</span>
+              </button>
+              <button class="nav-tab-item" data-screen="wallet">
+                <span class="nav-icon">💳</span>
+                <span>Wallet</span>
+              </button>
+              <button class="nav-tab-item" data-screen="transactions">
+                <span class="nav-icon">📋</span>
+                <span>History</span>
+              </button>
+              <button class="nav-tab-item" data-screen="profile">
+                <span class="nav-icon">👤</span>
+                <span>Profile</span>
+              </button>
+            </nav>
+
+            <!-- Home Bar Indicator -->
+            <div class="phone-home-indicator"></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ===================================================================
+           RIGHT: ADMIN WEB PANEL WRAPPER
+           =================================================================== -->
+      <section id="admin-app-wrapper" class="admin-layout-wrapper">
+        <!-- Admin Sidebar Navigation -->
+        <aside class="admin-sidebar">
+          <div class="admin-sidebar-header">
+            <div class="admin-brand-title">
+              <span style="color: var(--primary);">⚡</span> Antigravity Admin
+            </div>
+            <div class="admin-role-badge-box">
+              <span id="admin-current-role-tag" class="role-tag">Super Administrator</span>
+            </div>
+          </div>
+
+          <!-- Nav Menu Links -->
+          <nav class="admin-nav-menu">
+            <div class="nav-section-heading">Overview</div>
+            <button class="admin-nav-item active" data-tab="dashboard">
+              <span>📊</span> Executive Dashboard
+            </button>
+
+            <div class="nav-section-heading">User & Compliance</div>
+            <button class="admin-nav-item" data-tab="users">
+              <span>👥</span> User Management
+            </button>
+            <button class="admin-nav-item" data-tab="kyc">
+              <span>🪪</span> KYC Verification Desk
+              <span class="badge-counter warning">1</span>
+            </button>
+
+            <div class="nav-section-heading">Investments & Earnings</div>
+            <button class="admin-nav-item" data-tab="investments">
+              <span>💼</span> Investment Plans
+            </button>
+            <button class="admin-nav-item" data-tab="earnings">
+              <span>📈</span> Daily Accruals Engine
+            </button>
+
+            <div class="nav-section-heading">Banking & Liquidity</div>
+            <button class="admin-nav-item" data-tab="deposits">
+              <span>📥</span> Deposits Desk
+            </button>
+            <button class="admin-nav-item" data-tab="withdrawals">
+              <span>📤</span> Dual-Approval Desk
+              <span class="badge-counter">1</span>
+            </button>
+            <button class="admin-nav-item" data-tab="crypto">
+              <span>🪙</span> Crypto & VDA Admin
+            </button>
+
+            <div class="nav-section-heading">Financial Ledger</div>
+            <button class="admin-nav-item" data-tab="ledger">
+              <span>📖</span> Double-Entry Ledger
+            </button>
+            <button class="admin-nav-item" data-tab="reports">
+              <span>📋</span> Compliance Reports
+            </button>
+
+            <div class="nav-section-heading">Operations & Support</div>
+            <button class="admin-nav-item" data-tab="tickets">
+              <span>💬</span> Support Helpdesk
+            </button>
+            <button class="admin-nav-item" data-tab="audit">
+              <span>🛡️</span> System Audit Logs
+            </button>
+            <button class="admin-nav-item" data-tab="settings">
+              <span>⚙️</span> Platform Settings
+            </button>
+          </nav>
+        </aside>
+
+        <!-- Admin Content Viewport -->
+        <div id="admin-content-viewport" class="admin-main-viewport">
+          <!-- Dynamically populated by AdminNav -->
+        </div>
+      </section>
+
+    </main>
+  </div>
+
+  <!-- Supabase JS Client & Auth -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="js/supabase_auth.js"></script>
+
+  <!-- JavaScript Modules -->
+  <script src="js/api.js"></script>
+  <script src="js/store.js"></script>
+  
+  <!-- Mobile JS Controllers -->
+  <script src="js/mobile/auth_flow.js"></script>
+  <script src="js/mobile/dashboard.js"></script>
+  <script src="js/mobile/investment.js"></script>
+  <script src="js/mobile/earnings.js"></script>
+  <script src="js/mobile/wallet.js"></script>
+  <script src="js/mobile/crypto.js"></script>
+  <script src="js/mobile/referral.js"></script>
+  <script src="js/mobile/profile.js"></script>
+  <script src="js/mobile/support.js"></script>
+  <script src="js/mobile/router.js"></script>
+
+  <!-- Admin JS Controllers -->
+  <script src="js/admin/dashboard.js"></script>
+  <script src="js/admin/user_mgmt.js"></script>
+  <script src="js/admin/kyc_mgmt.js"></script>
+  <script src="js/admin/invest_mgmt.js"></script>
+  <script src="js/admin/earnings_mgmt.js"></script>
+  <script src="js/admin/deposit_mgmt.js"></script>
+  <script src="js/admin/withdraw_mgmt.js"></script>
+  <script src="js/admin/crypto_mgmt.js"></script>
+  <script src="js/admin/ledger_view.js"></script>
+  <script src="js/admin/reports.js"></script>
+  <script src="js/admin/tickets_mgmt.js"></script>
+  <script src="js/admin/audit_logs.js"></script>
+  <script src="js/admin/admin_nav.js"></script>
+
+  <!-- App Bootstrapper -->
+  <script src="js/app.js"></script>
+</body>
+</html>

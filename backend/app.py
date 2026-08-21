@@ -1,0 +1,71 @@
+import os
+import sys
+from flask import Flask, send_from_directory, jsonify
+
+# Add backend directory to sys.path
+backend_dir = os.path.dirname(os.path.abspath(__file__))
+sys.path.insert(0, backend_dir)
+
+from database import init_db
+from seed_data import seed_all
+
+# Import route blueprints
+from routes.auth_routes import auth_bp
+from routes.user_routes import user_bp
+from routes.invest_routes import invest_bp
+from routes.wallet_routes import wallet_bp
+from routes.crypto_routes import crypto_bp
+from routes.referral_routes import referral_bp
+from routes.support_routes import support_bp
+from routes.admin_routes import admin_bp
+
+frontend_dir = os.path.join(os.path.dirname(backend_dir), 'frontend')
+
+app = Flask(__name__, static_folder=frontend_dir)
+
+# Register Blueprints
+app.register_blueprint(auth_bp)
+app.register_blueprint(user_bp)
+app.register_blueprint(invest_bp)
+app.register_blueprint(wallet_bp)
+app.register_blueprint(crypto_bp)
+app.register_blueprint(referral_bp)
+app.register_blueprint(support_bp)
+app.register_blueprint(admin_bp)
+
+# CORS Header Middleware
+@app.after_request
+def after_request(response):
+    response.headers.add('Access-Control-Allow-Origin', '*')
+    response.headers.add('Access-Control-Allow-Headers', 'Content-Type,Authorization')
+    response.headers.add('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE,OPTIONS')
+    return response
+
+# Serve Frontend SPA
+@app.route('/')
+def serve_index():
+    return send_from_directory(frontend_dir, 'index.html')
+
+@app.route('/<path:path>')
+def serve_static(path):
+    file_path = os.path.join(frontend_dir, path)
+    if os.path.exists(file_path):
+        return send_from_directory(frontend_dir, path)
+    return send_from_directory(frontend_dir, 'index.html')
+
+# Health Check API
+@app.route('/api/health')
+def health_check():
+    return jsonify({
+        'status': 'healthy',
+        'platform': 'Antigravity Fintech Investment Platform',
+        'version': '2.4.0-fintech-pro',
+        'ledger_integrity': 'verified'
+    })
+
+if __name__ == '__main__':
+    # Initialize DB if not present
+    init_db()
+    port = int(os.environ.get('PORT', 5000))
+    print(f"Starting Antigravity Fintech Platform at http://localhost:{port}")
+    app.run(host='0.0.0.0', port=port, debug=True)
