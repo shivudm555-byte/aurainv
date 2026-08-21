@@ -141,4 +141,11 @@ const App = {
 // Start application when DOM is ready
 document.addEventListener('DOMContentLoaded', () => {
   App.init();
+
+  // Register PWA Service Worker for Mobile App Installation & Offline Caching
+  if ('serviceWorker' in navigator && window.location.protocol.startsWith('http')) {
+    navigator.serviceWorker.register('/sw.js').catch((err) => {
+      console.log('SW registration note:', err);
+    });
+  }
 });
