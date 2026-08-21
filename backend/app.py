@@ -53,6 +53,16 @@ def serve_static(path):
         return send_from_directory(frontend_dir, path)
     return send_from_directory(frontend_dir, 'index.html')
 
+# Download WordPress Plugin Zip
+@app.route('/download/antigravity-fintech.zip')
+@app.route('/download/wordpress-plugin')
+def download_wp_plugin():
+    from flask import send_file
+    wp_zip = os.path.join(os.path.dirname(backend_dir), 'wordpress', 'antigravity-fintech.zip')
+    if os.path.exists(wp_zip):
+        return send_file(wp_zip, as_attachment=True, download_name='antigravity-fintech.zip')
+    return jsonify({'error': 'Plugin zip not found'}), 404
+
 # Health Check API
 @app.route('/api/health')
 def health_check():
