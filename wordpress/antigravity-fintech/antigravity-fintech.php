@@ -80,7 +80,7 @@ class Antigravity_Fintech {
 
         // Core Styles
         wp_enqueue_style('agy-base-css', AGY_FINTECH_PLUGIN_URL . 'assets/css/base.css', array(), AGY_FINTECH_VERSION);
-        wp_enqueue_style('agy-mobile-css', AGY_FINTECH_PLUGIN_URL . 'assets/css/mobile-app.css', array('agy-base-css'), AGY_FINTECH_VERSION);
+        wp_enqueue_style('agy-web-portal-css', AGY_FINTECH_PLUGIN_URL . 'assets/css/web-portal.css', array('agy-base-css'), AGY_FINTECH_VERSION);
         wp_enqueue_style('agy-admin-css', AGY_FINTECH_PLUGIN_URL . 'assets/css/admin-panel.css', array('agy-base-css'), AGY_FINTECH_VERSION);
         wp_enqueue_style('agy-components-css', AGY_FINTECH_PLUGIN_URL . 'assets/css/components.css', array('agy-base-css'), AGY_FINTECH_VERSION);
 
@@ -92,8 +92,8 @@ class Antigravity_Fintech {
         wp_enqueue_script('agy-store-js', AGY_FINTECH_PLUGIN_URL . 'assets/js/store.js', array('agy-api-js'), AGY_FINTECH_VERSION, true);
         wp_enqueue_script('agy-supabase-auth', AGY_FINTECH_PLUGIN_URL . 'assets/js/supabase_auth.js', array('agy-api-js', 'supabase-sdk'), AGY_FINTECH_VERSION, true);
 
-        // Mobile Controllers
-        wp_enqueue_script('agy-mobile-auth', AGY_FINTECH_PLUGIN_URL . 'assets/js/mobile/auth_flow.js', array('agy-store-js'), AGY_FINTECH_VERSION, true);
+        // Web Portal Controller
+        wp_enqueue_script('agy-web-portal', AGY_FINTECH_PLUGIN_URL . 'assets/js/web/web_portal.js', array('agy-store-js'), AGY_FINTECH_VERSION, true);
         wp_enqueue_script('agy-mobile-dash', AGY_FINTECH_PLUGIN_URL . 'assets/js/mobile/dashboard.js', array('agy-store-js'), AGY_FINTECH_VERSION, true);
         wp_enqueue_script('agy-mobile-invest', AGY_FINTECH_PLUGIN_URL . 'assets/js/mobile/investment.js', array('agy-store-js'), AGY_FINTECH_VERSION, true);
         wp_enqueue_script('agy-mobile-earnings', AGY_FINTECH_PLUGIN_URL . 'assets/js/mobile/earnings.js', array('agy-store-js'), AGY_FINTECH_VERSION, true);
