@@ -8,6 +8,28 @@ class AGY_Shortcodes {
     public static function init() {
         add_shortcode('antigravity_fintech', array(__CLASS__, 'render_fintech_app'));
         add_shortcode('antigravity_admin', array(__CLASS__, 'render_admin_app'));
+
+        // Register custom page template in page editor dropdown
+        add_filter('theme_page_templates', array(__CLASS__, 'add_page_template'));
+        add_filter('template_include', array(__CLASS__, 'load_page_template'));
+    }
+
+    public static function add_page_template($templates) {
+        $templates['agy-fintech-canvas.php'] = __('⚡ Fintech Investment Platform (Full Page Canvas)', 'antigravity-fintech');
+        return $templates;
+    }
+
+    public static function load_page_template($template) {
+        if (is_page()) {
+            $page_template = get_post_meta(get_the_ID(), '_wp_page_template', true);
+            if ('agy-fintech-canvas.php' === $page_template) {
+                $custom_template = AGY_FINTECH_PLUGIN_DIR . 'templates/app-container.php';
+                if (file_exists($custom_template)) {
+                    return $custom_template;
+                }
+            }
+        }
+        return $template;
     }
 
     public static function render_fintech_app($atts = array()) {

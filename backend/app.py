@@ -63,6 +63,16 @@ def download_wp_plugin():
         return send_file(wp_zip, as_attachment=True, download_name='antigravity-fintech.zip')
     return jsonify({'error': 'Plugin zip not found'}), 404
 
+# Download WordPress Theme Zip
+@app.route('/download/antigravity-fintech-theme.zip')
+@app.route('/download/wordpress-theme')
+def download_wp_theme():
+    from flask import send_file
+    wp_theme_zip = os.path.join(os.path.dirname(backend_dir), 'wordpress', 'antigravity-fintech-theme.zip')
+    if os.path.exists(wp_theme_zip):
+        return send_file(wp_theme_zip, as_attachment=True, download_name='antigravity-fintech-theme.zip')
+    return jsonify({'error': 'Theme zip not found'}), 404
+
 # Health Check API
 @app.route('/api/health')
 def health_check():
