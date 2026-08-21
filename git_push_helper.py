@@ -34,5 +34,12 @@ def push_with_dulwich(repo_path, remote_url):
 
 if __name__ == '__main__':
     repo_dir = os.path.dirname(os.path.abspath(__file__))
-    remote = "https://github.com/shivudm555-byte/invest.git"
+    token = sys.argv[1] if len(sys.argv) > 1 else os.environ.get('GITHUB_TOKEN', '')
+    
+    if token:
+        remote = f"https://shivudm555-byte:{token}@github.com/shivudm555-byte/invest.git"
+    else:
+        remote = "https://github.com/shivudm555-byte/invest.git"
+        
+    print(f"Target Remote: https://github.com/shivudm555-byte/invest.git")
     push_with_dulwich(repo_dir, remote)
