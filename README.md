@@ -43,7 +43,16 @@ An enterprise-grade, modern fintech mobile investment platform with a connected 
 
 ---
 
-### ⚡ Interactive Split-Screen Live Sync View
+### 🌐 WordPress Plugin & Theme Ecosystem (`wordpress/`)
+- **Installable Plugin**: Ready-to-upload `wordpress/antigravity-fintech.zip` for any WordPress site.
+- **14 Custom MySQL Tables (`{$wpdb->prefix}agy_*`)**: Strict double-entry ledger, wallets, investments, deposits, withdrawals, KYC, crypto, referrals, support tickets, and audit logs.
+- **WordPress REST API (`/wp-json/antigravity/v1/...`)**: Native WordPress endpoints with nonce and capability protection.
+- **Native WP-Admin Control Center**: Dedicated management screens under **⚡ Antigravity Fintech** in the WP sidebar.
+- **Shortcode Embeds**: `[antigravity_fintech mode="split_sync|mobile_frame|mobile_full|admin_panel"]` for Elementor, Gutenberg, and classic pages.
+- **Automated WP-Cron**: Daily 24-hour yield accrual distributions via `agy_daily_accrual_cycle`.
+- **Companion Theme**: `wordpress/antigravity-fintech-theme/` for dedicated full-width portals.
+
+---
 The application includes a real-time Split-Screen View:
 - **Left**: User Mobile App.
 - **Right**: Admin Control Center.
