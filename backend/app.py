@@ -46,6 +46,14 @@ def after_request(response):
 def serve_index():
     return send_from_directory(frontend_dir, 'index.html')
 
+# Serve Firebase Web App
+@app.route('/firebase')
+@app.route('/firebase/')
+@app.route('/firebase/<path:path>')
+def serve_firebase(path='index.html'):
+    firebase_dir = os.path.join(os.path.dirname(backend_dir), 'firebase')
+    return send_from_directory(firebase_dir, path)
+
 @app.route('/<path:path>')
 def serve_static(path):
     file_path = os.path.join(frontend_dir, path)

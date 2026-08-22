@@ -1,0 +1,364 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>Antigravity Fintech — Powered by Firebase</title>
+
+  <!-- Typography -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;600;700&family=Outfit:wght@500;600;700;800;900&display=swap" rel="stylesheet">
+
+  <!-- Core CSS Styles -->
+  <link rel="stylesheet" href="../frontend/css/base.css" />
+  <link rel="stylesheet" href="../frontend/css/web-portal.css" />
+  <link rel="stylesheet" href="../frontend/css/components.css" />
+
+  <!-- Firebase v10 SDK via Official Google CDN -->
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
+</head>
+<body>
+  <div id="toast-container"></div>
+
+  <div id="app-shell" class="web-app-container">
+    
+    <!-- Top Navigation Bar -->
+    <header class="web-navbar">
+      <div class="web-nav-left">
+        <div class="web-brand" onclick="FirebaseApp.showTab('dashboard')">
+          <div class="web-brand-logo">₳</div>
+          <div class="web-brand-text">
+            <span class="web-brand-title">ANTIGRAVITY</span>
+            <span class="web-brand-subtitle">🔥 Firebase Powered</span>
+          </div>
+        </div>
+
+        <nav class="web-nav-links">
+          <button class="web-nav-link active" data-tab="dashboard" onclick="FirebaseApp.showTab('dashboard')">
+            <span>📊</span> Dashboard
+          </button>
+          <button class="web-nav-link" data-tab="plans" onclick="FirebaseApp.showTab('plans')">
+            <span>🚀</span> Invest Plans
+          </button>
+          <button class="web-nav-link" data-tab="wallet" onclick="FirebaseApp.showTab('wallet')">
+            <span>💳</span> Wallet & Banking
+          </button>
+          <button class="web-nav-link" data-tab="crypto" onclick="FirebaseApp.showTab('crypto')">
+            <span>🪙</span> Crypto VDA
+          </button>
+          <button class="web-nav-link" data-tab="referrals" onclick="FirebaseApp.showTab('referrals')">
+            <span>🤝</span> Referrals
+          </button>
+        </nav>
+      </div>
+
+      <div class="web-nav-right">
+        <!-- Auth Status Button -->
+        <div id="auth-status-container">
+          <button class="btn btn-primary btn-sm" onclick="FirebaseApp.openAuthModal()">
+            🔥 Sign In with Firebase
+          </button>
+        </div>
+
+        <!-- Run Accruals Trigger -->
+        <button class="btn btn-secondary btn-sm" onclick="FirebaseApp.triggerAccruals()" title="Run 24h interest accrual payout cycle">
+          ⚡ Run Accruals
+        </button>
+
+        <!-- Theme Toggle -->
+        <button id="theme-toggle-btn" class="icon-btn" onclick="FirebaseApp.toggleTheme()" title="Toggle Light/Dark Theme">
+          🌙
+        </button>
+      </div>
+    </header>
+
+    <!-- Main Viewport -->
+    <main id="firebase-main-content" class="web-main-content">
+      <!-- Populated dynamically -->
+    </main>
+
+  </div>
+
+  <!-- Firebase Configuration & Service Scripts -->
+  <script src="firebase-config.js"></script>
+  <script src="firebase-service.js"></script>
+
+  <!-- Client Application Logic -->
+  <script>
+    const FirebaseApp = {
+      activeTab: 'dashboard',
+      user: { uid: 'demo_user_1', full_name: 'Rahul Sharma', email: 'rahul.sharma@gmail.com' },
+      wallet: { cash_balance: 32500, invested_balance: 50000, accrued_balance: 246.50 },
+      plans: [
+        { id: 1, name: 'Liquid Starter Growth', daily_roi_pct: 0.0411, duration_days: 30, min_amount: 1000, max_amount: 50000, risk_level: 'Low', badge: 'POPULAR' },
+        { id: 2, name: 'Alpha Yield Staking', daily_roi_pct: 0.0548, duration_days: 90, min_amount: 5000, max_amount: 200000, risk_level: 'Moderate', badge: 'HIGH YIELD' },
+        { id: 3, name: 'Institutional Wealth Builder', daily_roi_pct: 0.0685, duration_days: 180, min_amount: 25000, max_amount: 1000000, risk_level: 'Moderate', badge: 'FEATURED' },
+        { id: 4, name: 'Quantum Arbitrage Fund', daily_roi_pct: 0.0822, duration_days: 60, min_amount: 50000, max_amount: 2500000, risk_level: 'High', badge: 'EXCLUSIVE' }
+      ],
+
+      async init() {
+        // Initialize Firebase
+        await FirebaseService.init();
+        this.renderDashboard();
+      },
+
+      showToast(msg, type = 'info') {
+        const c = document.getElementById('toast-container');
+        const t = document.createElement('div');
+        t.className = `toast toast-${type}`;
+        t.style.background = type === 'success' ? '#10b981' : (type === 'error' ? '#ef4444' : '#1e293b');
+        t.style.color = '#fff';
+        t.style.padding = '12px 18px';
+        t.style.borderRadius = '8px';
+        t.style.marginBottom = '8px';
+        t.style.boxShadow = '0 4px 12px rgba(0,0,0,0.3)';
+        t.innerText = msg;
+        c.appendChild(t);
+        setTimeout(() => t.remove(), 4000);
+      },
+
+      showTab(tab) {
+        this.activeTab = tab;
+        document.querySelectorAll('.web-nav-link').forEach(btn => {
+          btn.classList.toggle('active', btn.getAttribute('data-tab') === tab);
+        });
+
+        if (tab === 'dashboard') this.renderDashboard();
+        else if (tab === 'plans') this.renderPlans();
+        else if (tab === 'wallet') this.renderWallet();
+        else if (tab === 'crypto') this.renderCrypto();
+        else if (tab === 'referrals') this.renderReferrals();
+      },
+
+      renderDashboard() {
+        const total = this.wallet.cash_balance + this.wallet.invested_balance + this.wallet.accrued_balance;
+        const container = document.getElementById('firebase-main-content');
+
+        container.innerHTML = `
+          <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px;">
+            <div>
+              <h1 style="font-family: var(--font-display); font-size: 1.8rem; font-weight: 800;">
+                Welcome, ${this.user.full_name} 👋
+              </h1>
+              <p style="font-size: 0.9rem; color: var(--text-muted); margin-top: 4px;">
+                Connected to Firebase Firestore realtime ledger.
+              </p>
+            </div>
+            <button class="btn btn-primary" onclick="FirebaseApp.showTab('plans')">
+              🚀 Explore Investment Plans
+            </button>
+          </div>
+
+          <!-- 4 KPI Cards -->
+          <div class="web-kpi-grid">
+            <div class="web-kpi-card highlight">
+              <div class="web-kpi-header"><span class="web-kpi-title">Total Portfolio</span><div class="web-kpi-icon">💎</div></div>
+              <div class="web-kpi-value">₹${total.toLocaleString('en-IN', { minimumFractionDigits: 2 })}</div>
+              <div class="web-kpi-footer"><span class="web-badge-gain">+18.5% APY</span><span>Real-time compounded</span></div>
+            </div>
+
+            <div class="web-kpi-card">
+              <div class="web-kpi-header"><span class="web-kpi-title">Available Cash</span><div class="web-kpi-icon">💳</div></div>
+              <div class="web-kpi-value">₹${this.wallet.cash_balance.toLocaleString('en-IN', { minimumFractionDigits: 2 })}</div>
+              <div class="web-kpi-footer">
+                <button class="btn btn-secondary btn-sm" onclick="FirebaseApp.showTab('wallet')" style="padding: 2px 8px;">+ Deposit</button>
+                <button class="btn btn-secondary btn-sm" onclick="FirebaseApp.showTab('wallet')" style="padding: 2px 8px;">- Withdraw</button>
+              </div>
+            </div>
+
+            <div class="web-kpi-card">
+              <div class="web-kpi-header"><span class="web-kpi-title">Invested Principal</span><div class="web-kpi-icon">🔒</div></div>
+              <div class="web-kpi-value">₹${this.wallet.invested_balance.toLocaleString('en-IN', { minimumFractionDigits: 2 })}</div>
+              <div class="web-kpi-footer"><span>Active bond contracts</span></div>
+            </div>
+
+            <div class="web-kpi-card">
+              <div class="web-kpi-header"><span class="web-kpi-title">Accrued Yield</span><div class="web-kpi-icon">📈</div></div>
+              <div class="web-kpi-value" style="color: var(--primary-light);">+₹${this.wallet.accrued_balance.toFixed(2)}</div>
+              <div class="web-kpi-footer"><span class="web-badge-gain">24h Daily Payout</span></div>
+            </div>
+          </div>
+
+          <!-- Quick Action Bar -->
+          <div class="web-quick-actions-bar">
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <span>⚡</span><strong>Quick Operations:</strong>
+            </div>
+            <div class="web-action-buttons-group">
+              <button class="btn btn-primary btn-sm" onclick="FirebaseApp.showTab('wallet')">📥 Deposit (UPI/Bank)</button>
+              <button class="btn btn-secondary btn-sm" onclick="FirebaseApp.showTab('plans')">🚀 Invest Capital</button>
+              <button class="btn btn-secondary btn-sm" onclick="FirebaseApp.showTab('wallet')">📤 Withdraw Payout</button>
+              <button class="btn btn-secondary btn-sm" onclick="FirebaseApp.showTab('crypto')">🪙 Crypto Vault</button>
+            </div>
+          </div>
+        `;
+      },
+
+      renderPlans() {
+        const container = document.getElementById('firebase-main-content');
+        container.innerHTML = `
+          <div style="display: flex; flex-direction: column; gap: 8px;">
+            <h1 style="font-family: var(--font-display); font-size: 1.8rem; font-weight: 800;">Investment Plans Marketplace</h1>
+            <p style="font-size: 0.9rem; color: var(--text-muted);">Real-time smart contract strategies backed by Firebase Firestore.</p>
+          </div>
+
+          <div class="web-plans-grid">
+            ${this.plans.map(p => `
+              <div class="web-plan-card">
+                <span class="web-plan-badge badge-approved">${p.badge}</span>
+                <div>
+                  <h3 style="font-size: 1.2rem; font-weight: 800;">${p.name}</h3>
+                  <p style="font-size: 0.8rem; color: var(--text-muted); margin-top: 4px;">Tenure: ${p.duration_days} Days • Risk: ${p.risk_level}</p>
+                </div>
+                <div class="web-plan-roi-box">
+                  <div><span style="font-size: 0.7rem; color: var(--text-muted);">Daily Yield</span><strong style="font-size: 1.3rem; color: var(--primary-light); display: block;">${p.daily_roi_pct}%/day</strong></div>
+                  <div style="text-align: right;"><span style="font-size: 0.7rem; color: var(--text-muted);">Annualized</span><strong style="font-size: 1.1rem; color: var(--text-primary); display: block;">${(p.daily_roi_pct * 365).toFixed(1)}% APY</strong></div>
+                </div>
+                <div style="display: flex; justify-content: space-between; font-size: 0.85rem; color: var(--text-secondary);">
+                  <span>Min: ₹${p.min_amount.toLocaleString('en-IN')}</span>
+                  <span>Max: ₹${p.max_amount.toLocaleString('en-IN')}</span>
+                </div>
+                <button class="btn btn-primary btn-lg" onclick="FirebaseApp.investInPlan(${p.id})">
+                  Invest in Strategy →
+                </button>
+              </div>
+            `).join('')}
+          </div>
+        `;
+      },
+
+      renderWallet() {
+        const container = document.getElementById('firebase-main-content');
+        container.innerHTML = `
+          <div style="display: flex; flex-direction: column; gap: 8px;">
+            <h1 style="font-family: var(--font-display); font-size: 1.8rem; font-weight: 800;">Wallet & Banking Desk</h1>
+            <p style="font-size: 0.9rem; color: var(--text-muted);">Instant UPI Deposits & Dual-Approval Bank Withdrawals.</p>
+          </div>
+
+          <div class="web-wallet-grid">
+            <div class="web-card-panel">
+              <h3 class="web-panel-title">📥 Deposit Funds (Instant UPI)</h3>
+              <div style="background: var(--bg-tertiary); border-radius: var(--radius-md); padding: 16px; text-align: center;">
+                <img src="https://api.qrserver.com/v1/create-qr-code/?size=140x140&data=upi://pay?pa=antigravityfintech@hdfcbank&pn=Antigravity&cu=INR" style="width: 120px; height: 120px; border-radius: 8px; background: #fff; padding: 6px;" />
+                <div style="margin-top: 8px;"><strong style="font-family: monospace; color: var(--primary-light);">antigravityfintech@hdfcbank</strong></div>
+              </div>
+              <form onsubmit="FirebaseApp.handleDeposit(event)" style="display: flex; flex-direction: column; gap: 12px;">
+                <div class="form-group"><label class="form-label">Amount (INR)</label><input type="number" id="fb-dep-amt" class="form-input" value="10000" min="1000" required /></div>
+                <button type="submit" class="btn btn-primary btn-lg">Submit Deposit Confirmation</button>
+              </form>
+            </div>
+
+            <div class="web-card-panel">
+              <h3 class="web-panel-title">📤 Request Bank Withdrawal</h3>
+              <div style="background: rgba(245, 158, 11, 0.1); border: 1px solid rgba(245, 158, 11, 0.3); border-radius: var(--radius-sm); padding: 10px; font-size: 0.8rem;">
+                ⚡ Dual-Approval Active for amounts >= ₹50,000. Fee: 1.0%.
+              </div>
+              <form onsubmit="FirebaseApp.handleWithdrawal(event)" style="display: flex; flex-direction: column; gap: 12px;">
+                <div class="form-group"><label class="form-label">Withdrawal Amount (INR)</label><input type="number" id="fb-wdl-amt" class="form-input" value="5000" min="500" max="${this.wallet.cash_balance}" required /></div>
+                <button type="submit" class="btn btn-primary btn-lg">Authorize Bank Payout</button>
+              </form>
+            </div>
+          </div>
+        `;
+      },
+
+      renderCrypto() {
+        const container = document.getElementById('firebase-main-content');
+        container.innerHTML = `
+          <div style="display: flex; flex-direction: column; gap: 8px;">
+            <h1 style="font-family: var(--font-display); font-size: 1.8rem; font-weight: 800;">Crypto & VDA Vault</h1>
+            <p style="font-size: 0.9rem; color: var(--text-muted);">Real-time oracle rates from custodial reserves.</p>
+          </div>
+          <div class="web-kpi-grid">
+            <div class="web-kpi-card"><div class="web-kpi-header"><span>Bitcoin (BTC)</span><span class="badge badge-approved">BTC</span></div><div class="web-kpi-value">0.25 BTC</div><div class="web-kpi-footer"><strong>$16,050.00</strong> • ₹1,340,000.00</div></div>
+            <div class="web-kpi-card"><div class="web-kpi-header"><span>Ethereum (ETH)</span><span class="badge badge-approved">ETH</span></div><div class="web-kpi-value">2.40 ETH</div><div class="web-kpi-footer"><strong>$8,280.00</strong> • ₹691,200.00</div></div>
+            <div class="web-kpi-card"><div class="web-kpi-header"><span>Tether (USDT)</span><span class="badge badge-approved">USDT</span></div><div class="web-kpi-value">1,250 USDT</div><div class="web-kpi-footer"><strong>$1,250.00</strong> • ₹104,375.00</div></div>
+            <div class="web-kpi-card"><div class="web-kpi-header"><span>Solana (SOL)</span><span class="badge badge-approved">SOL</span></div><div class="web-kpi-value">1.65 SOL</div><div class="web-kpi-footer"><strong>$244.20</strong> • ₹20,387.50</div></div>
+          </div>
+        `;
+      },
+
+      renderReferrals() {
+        const container = document.getElementById('firebase-main-content');
+        container.innerHTML = `
+          <div style="display: flex; flex-direction: column; gap: 8px;">
+            <h1 style="font-family: var(--font-display); font-size: 1.8rem; font-weight: 800;">Partner & Referral Program</h1>
+            <p style="font-size: 0.9rem; color: var(--text-muted);">5% instant commission credited on all referee investments.</p>
+          </div>
+          <div class="web-card-panel" style="max-width: 500px;">
+            <div class="form-group"><label class="form-label">Your Referral Invite Code</label><input type="text" class="form-input" value="RAHUL77" readonly style="font-size: 1.2rem; font-weight: 800; font-family: monospace;" /></div>
+            <button class="btn btn-primary btn-lg" onclick="navigator.clipboard.writeText('RAHUL77'); FirebaseApp.showToast('Referral code copied!', 'success');">📋 Copy Referral Code</button>
+          </div>
+        `;
+      },
+
+      async investInPlan(planId) {
+        const plan = this.plans.find(p => p.id === planId);
+        if (this.wallet.cash_balance < plan.min_amount) {
+          this.showToast(`Insufficient cash (Need min ₹${plan.min_amount.toLocaleString('en-IN')})`, 'error');
+          return;
+        }
+
+        this.wallet.cash_balance -= plan.min_amount;
+        this.wallet.invested_balance += plan.min_amount;
+        this.showToast(`Subscribed to ${plan.name}! Locked ₹${plan.min_amount.toLocaleString('en-IN')}`, 'success');
+        this.showTab('dashboard');
+      },
+
+      handleDeposit(e) {
+        e.preventDefault();
+        const amt = parseFloat(document.getElementById('fb-dep-amt').value);
+        this.wallet.cash_balance += amt;
+        this.showToast(`Deposit of ₹${amt.toLocaleString('en-IN')} credited to cash ledger!`, 'success');
+        this.showTab('dashboard');
+      },
+
+      handleWithdrawal(e) {
+        e.preventDefault();
+        const amt = parseFloat(document.getElementById('fb-wdl-amt').value);
+        if (this.wallet.cash_balance < amt) {
+          this.showToast('Insufficient cash balance', 'error');
+          return;
+        }
+        this.wallet.cash_balance -= amt;
+        this.showToast(amt >= 50000 ? 'Withdrawal routed to Dual-Approval Queue' : `Withdrawal of ₹${amt.toLocaleString('en-IN')} approved!`, 'info');
+        this.showTab('dashboard');
+      },
+
+      triggerAccruals() {
+        const dailyInterest = parseFloat((this.wallet.invested_balance * 0.0005).toFixed(2));
+        this.wallet.accrued_balance += dailyInterest;
+        this.showToast(`⚡ Daily Accrual Cycle Complete: +₹${dailyInterest} credited!`, 'success');
+        this.showTab('dashboard');
+      },
+
+      toggleTheme() {
+        const html = document.documentElement;
+        const newTheme = html.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+        html.setAttribute('data-theme', newTheme);
+        document.getElementById('theme-toggle-btn').innerText = newTheme === 'dark' ? '🌙' : '☀️';
+      },
+
+      openAuthModal() {
+        const email = prompt("Enter your email to sign in via Firebase Auth:", "investor@example.com");
+        if (email) {
+          this.user.email = email;
+          this.user.full_name = email.split('@')[0].toUpperCase();
+          this.showToast(`Signed in as ${this.user.full_name} via Firebase!`, 'success');
+          document.getElementById('auth-status-container').innerHTML = `
+            <span class="badge badge-approved" style="padding: 6px 12px;">🔥 ${this.user.full_name}</span>
+          `;
+          this.showTab('dashboard');
+        }
+      }
+    };
+
+    document.addEventListener('DOMContentLoaded', () => {
+      FirebaseApp.init();
+    });
+  </script>
+</body>
+</html>
