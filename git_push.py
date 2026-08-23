@@ -6,7 +6,7 @@ import urllib.error
 import dulwich.porcelain as porcelain
 from dulwich.repo import Repo
 
-def verify_token_and_create_repo(token, repo_name="aura-wealth-fintech"):
+def verify_token_and_create_repo(token, repo_name="aurainv"):
     token = token.strip().replace('"', '').replace("'", "")
     headers = {
         "Authorization": f"Bearer {token}",
@@ -127,8 +127,8 @@ if __name__ == '__main__':
     
     stage_and_commit()
     
-    token = None
-    repo_name = "aura-wealth-fintech"
+    token = os.environ.get("GITHUB_TOKEN") or os.environ.get("GH_TOKEN")
+    repo_name = "aurainv"
     
     if len(sys.argv) > 1:
         token = sys.argv[1]
