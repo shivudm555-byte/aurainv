@@ -5,13 +5,8 @@ import urllib.request
 import urllib.error
 import dulwich.porcelain as porcelain
 from dulwich.repo import Repo
-from dulwich.client import get_transport_and_path
 
 def verify_token_and_create_repo(token, repo_name="aura-wealth-fintech"):
-    """
-    Verifies the GitHub token, gets the authenticated username,
-    and automatically creates the repo on GitHub if it doesn't exist yet!
-    """
     token = token.strip().replace('"', '').replace("'", "")
     headers = {
         "Authorization": f"Bearer {token}",
@@ -22,35 +17,35 @@ def verify_token_and_create_repo(token, repo_name="aura-wealth-fintech"):
     # 1. Verify Token & Get Authenticated User
     user_url = "https://api.github.com/user"
     req = urllib.request.Request(user_url, headers=headers)
+    username = None
     try:
         with urllib.request.urlopen(req) as resp:
             user_data = json.loads(resp.read().decode('utf-8'))
             username = user_data.get("login")
-            print(f"✅ Authenticated as GitHub user: @{username} ({user_data.get('name', '')})")
+            print(f"[AUTH] Authenticated as GitHub user: @{username}")
     except urllib.error.HTTPError as e:
-        print(f"❌ [AUTH ERROR] GitHub Token is invalid or expired (HTTP {e.code}).")
-        print("Please generate a new Token (classic) at: https://github.com/settings/tokens with 'repo' checked.")
+        print(f"[AUTH ERROR] GitHub Token is invalid or expired (HTTP {e.code}).")
         return None, None
     except Exception as e:
-        print(f"❌ Connection error: {e}")
+        print(f"[ERROR] Connection error: {e}")
         return None, None
 
-    # 2. Check if repo exists, if not, automatically create it!
+    # 2. Check if repo exists, if not, automatically create it
     repo_check_url = f"https://api.github.com/repos/{username}/{repo_name}"
     req_check = urllib.request.Request(repo_check_url, headers=headers)
     repo_exists = False
     try:
         with urllib.request.urlopen(req_check) as resp:
             repo_exists = True
-            print(f"📁 Target repository already exists: https://github.com/{username}/{repo_name}")
+            print(f"[REPO] Target repository exists: https://github.com/{username}/{repo_name}")
     except urllib.error.HTTPError as e:
         if e.code == 404:
             repo_exists = False
         else:
-            print(f"ℹ️ Status code: {e.code}")
+            print(f"[INFO] Status code: {e.code}")
 
     if not repo_exists:
-        print(f"✨ Creating new repository '{repo_name}' on GitHub for @{username}...")
+        print(f"[CREATE] Creating new repository '{repo_name}' on GitHub for @{username}...")
         create_url = "https://api.github.com/user/repos"
         payload = json.dumps({
             "name": repo_name,
@@ -62,10 +57,10 @@ def verify_token_and_create_repo(token, repo_name="aura-wealth-fintech"):
         try:
             with urllib.request.urlopen(req_create) as resp:
                 created_data = json.loads(resp.read().decode('utf-8'))
-                print(f"🎉 Created new repository: {created_data.get('html_url')}")
+                print(f"[SUCCESS] Created new repository: {created_data.get('html_url')}")
         except urllib.error.HTTPError as e:
             err_msg = e.read().decode('utf-8')
-            print(f"ℹ️ Repo creation notice (HTTP {e.code}): {err_msg}")
+            print(f"[INFO] Repo creation response (HTTP {e.code}): {err_msg}")
             
     return username, repo_name
 
@@ -73,7 +68,7 @@ def stage_and_commit():
     repo_path = os.path.dirname(os.path.abspath(__file__))
     repo = Repo(repo_path)
     
-    print("⏳ Staging all project files...")
+    print("[STAGE] Staging all project files...")
     porcelain.add(repo_path)
     
     head_sha = repo.head()
@@ -82,14 +77,14 @@ def stage_and_commit():
     commit_msg = b"Feat: Complete 2026 Fintech Investment Mobile Application (AURA WEALTH) - 36 Screens, Double-Entry Ledger, Interactive Charts, Biometrics & PWA"
     author = b"Antigravity Fintech Developer <developer@fintech.local>"
     
-    print("📝 Creating Git commit...")
+    print("[COMMIT] Creating Git commit...")
     try:
         commit_id = porcelain.commit(repo_path, message=commit_msg, author=author, committer=author)
         sha_str = commit_id.decode('utf-8') if isinstance(commit_id, bytes) else commit_id
-        print(f"✅ Committed changes! Commit SHA: {sha_str}")
+        print(f"[SUCCESS] Committed changes! Commit SHA: {sha_str}")
         repo.refs[b'refs/heads/main'] = repo.head()
     except Exception as e:
-        print(f"ℹ️ Commit status: {e}")
+        print(f"[INFO] Commit status: {e}")
 
 def push_to_github(username, token, repo_name):
     repo_path = os.path.dirname(os.path.abspath(__file__))
@@ -101,34 +96,33 @@ def push_to_github(username, token, repo_name):
     authenticated_url = f"https://{username}:{token}@github.com/{username}/{repo_name}.git"
     public_url = f"https://github.com/{username}/{repo_name}"
     
-    print(f"\n🚀 Pushing all code to: {public_url} ...")
+    print(f"[PUSH] Pushing all code to: {public_url} ...")
     
     success = False
     for branch_ref in [b'refs/heads/main:refs/heads/main', b'refs/heads/master:refs/heads/master', b'refs/heads/master:refs/heads/main']:
         try:
-            print(f"   Uploading ref: {branch_ref.decode('utf-8')} ...")
+            print(f"       Uploading branch: {branch_ref.decode('utf-8')} ...")
             porcelain.push(repo_path, remote_location=authenticated_url, refspecs=[branch_ref])
             success = True
             break
         except Exception as e:
             err_str = str(e)
-            print(f"   Ref attempt notice: {err_str}")
+            print(f"       Branch attempt notice: {err_str}")
 
     if success:
         print("\n" + "=" * 60)
-        print("🎉 SUCCESS! All code has been published to GitHub!")
-        print(f"🔗 View your repository: {public_url}")
+        print("SUCCESS! All code has been published to GitHub!")
+        print(f"View your repository: {public_url}")
         print("=" * 60)
     else:
         print("\n" + "=" * 60)
-        print("❌ Push could not complete automatically.")
+        print("Push could not complete automatically.")
         print(f"Please verify your token at: https://github.com/settings/tokens")
-        print("Ensure 'repo' (Full control of private repositories) is CHECKED.")
         print("=" * 60)
 
 if __name__ == '__main__':
     print("=" * 60)
-    print(" AURA WEALTH — GITHUB PUBLISHING UTILITY ")
+    print(" AURA WEALTH - GITHUB PUBLISHING UTILITY ")
     print("=" * 60)
     
     stage_and_commit()
@@ -145,10 +139,8 @@ if __name__ == '__main__':
             else:
                 repo_name = arg2
     else:
-        print("\n" + "-" * 50)
-        print("🔑 GitHub Authentication")
-        print("-" * 50)
-        token = input("Enter your GitHub Personal Access Token (ghp_...): ").strip()
+        print("\nGitHub Authentication")
+        token = input("Enter your GitHub Personal Access Token: ").strip()
         custom_repo = input(f"Enter Repository Name (Press Enter for default: '{repo_name}'): ").strip()
         if custom_repo:
             if "/" in custom_repo:
@@ -161,4 +153,4 @@ if __name__ == '__main__':
         if username and repo_name:
             push_to_github(username, token, repo_name)
     else:
-        print("❌ No token provided. Push aborted.")
+        print("[ERROR] No token provided. Push aborted.")
