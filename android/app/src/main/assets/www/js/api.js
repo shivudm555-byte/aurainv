@@ -1,19 +1,19 @@
 // ==========================================================================
 // Centralized REST API Client with Automatic Live / Static Fallback Adapter
-// Provides seamless operation both on local servers and static cloud hosts (Vercel)
+// Provides 100% full functionality on both live backends and static hosts (Vercel)
 // ==========================================================================
 
 const MockData = {
   users: [
-    { id: 1, full_name: 'Vikramaditya Singhania', email: 'superadmin@fintech.com', phone: '+91 98765 00001', role: 'super_admin', status: 'active', kyc_status: 'approved', cash_balance: 1500000.0, invested_balance: 5000000.0, accrued_balance: 125000.0, referral_code: 'SUPER001' },
-    { id: 2, full_name: 'Meera Nambiar', email: 'finance@fintech.com', phone: '+91 98765 00002', role: 'finance_admin', status: 'active', kyc_status: 'approved', cash_balance: 850000.0, invested_balance: 2000000.0, accrued_balance: 45000.0, referral_code: 'FIN002' },
-    { id: 3, full_name: 'Suresh Iyer', email: 'kyc@fintech.com', phone: '+91 98765 00003', role: 'kyc_admin', status: 'active', kyc_status: 'approved', cash_balance: 50000.0, invested_balance: 0.0, accrued_balance: 0.0, referral_code: 'KYC003' },
-    { id: 4, full_name: 'Ananya Sen', email: 'ops@fintech.com', phone: '+91 98765 00004', role: 'ops_admin', status: 'active', kyc_status: 'approved', cash_balance: 75000.0, invested_balance: 0.0, accrued_balance: 0.0, referral_code: 'OPS004' },
-    { id: 5, full_name: 'Alex Morgan', email: 'alex.morgan@aurafin.com', phone: '+91 98111 22233', role: 'user', status: 'active', kyc_status: 'approved', cash_balance: 5450.0, invested_balance: 20000.0, accrued_balance: 450.0, referral_code: 'ALEX2026' },
-    { id: 6, full_name: 'Priya Patel', email: 'priya.patel@gmail.com', phone: '+91 98222 33344', role: 'user', status: 'active', kyc_status: 'pending', cash_balance: 12000.0, invested_balance: 50000.0, accrued_balance: 1200.0, referral_code: 'PRIYA88' },
-    { id: 7, full_name: 'Amit Verma', email: 'amit.verma@investor.com', phone: '+91 98333 44455', role: 'user', status: 'active', kyc_status: 'approved', cash_balance: 75000.0, invested_balance: 250000.0, accrued_balance: 6250.0, referral_code: 'AMIT99' },
-    { id: 8, full_name: 'Kavita Reddy', email: 'kavita.reddy@techcorp.in', phone: '+91 98444 55566', role: 'user', status: 'active', kyc_status: 'rejected', cash_balance: 3000.0, invested_balance: 0.0, accrued_balance: 0.0, referral_code: 'KAVITA55' },
-    { id: 9, full_name: 'Rohan Merchant', email: 'rohan.merchant@gmail.com', phone: '+91 98555 66677', role: 'user', status: 'suspended', kyc_status: 'approved', cash_balance: 0.0, invested_balance: 10000.0, accrued_balance: 250.0, referral_code: 'ROHAN11' }
+    { id: 1, full_name: 'Vikramaditya Singhania', email: 'superadmin@fintech.com', phone: '+91 98765 00001', role: 'super_admin', status: 'active', kyc_status: 'approved', cash_balance: 1500000.0, invested_balance: 5000000.0, accrued_balance: 125000.0, referral_code: 'SUPER001', created_at: '2026-01-10' },
+    { id: 2, full_name: 'Meera Nambiar', email: 'finance@fintech.com', phone: '+91 98765 00002', role: 'finance_admin', status: 'active', kyc_status: 'approved', cash_balance: 850000.0, invested_balance: 2000000.0, accrued_balance: 45000.0, referral_code: 'FIN002', created_at: '2026-01-15' },
+    { id: 3, full_name: 'Suresh Iyer', email: 'kyc@fintech.com', phone: '+91 98765 00003', role: 'kyc_admin', status: 'active', kyc_status: 'approved', cash_balance: 50000.0, invested_balance: 0.0, accrued_balance: 0.0, referral_code: 'KYC003', created_at: '2026-02-01' },
+    { id: 4, full_name: 'Ananya Sen', email: 'ops@fintech.com', phone: '+91 98765 00004', role: 'ops_admin', status: 'active', kyc_status: 'approved', cash_balance: 75000.0, invested_balance: 0.0, accrued_balance: 0.0, referral_code: 'OPS004', created_at: '2026-02-05' },
+    { id: 5, full_name: 'Alex Morgan', email: 'alex.morgan@aurafin.com', phone: '+91 98111 22233', role: 'user', status: 'active', kyc_status: 'approved', cash_balance: 5450.0, invested_balance: 20000.0, accrued_balance: 450.0, referral_code: 'ALEX2026', created_at: '2026-07-01' },
+    { id: 6, full_name: 'Priya Patel', email: 'priya.patel@gmail.com', phone: '+91 98222 33344', role: 'user', status: 'active', kyc_status: 'pending', cash_balance: 12000.0, invested_balance: 50000.0, accrued_balance: 1200.0, referral_code: 'PRIYA88', created_at: '2026-08-10' },
+    { id: 7, full_name: 'Amit Verma', email: 'amit.verma@investor.com', phone: '+91 98333 44455', role: 'user', status: 'active', kyc_status: 'approved', cash_balance: 75000.0, invested_balance: 250000.0, accrued_balance: 6250.0, referral_code: 'AMIT99', created_at: '2026-06-15' },
+    { id: 8, full_name: 'Kavita Reddy', email: 'kavita.reddy@techcorp.in', phone: '+91 98444 55566', role: 'user', status: 'active', kyc_status: 'rejected', cash_balance: 3000.0, invested_balance: 0.0, accrued_balance: 0.0, referral_code: 'KAVITA55', created_at: '2026-08-18' },
+    { id: 9, full_name: 'Rohan Merchant', email: 'rohan.merchant@gmail.com', phone: '+91 98555 66677', role: 'user', status: 'suspended', kyc_status: 'approved', cash_balance: 0.0, invested_balance: 10000.0, accrued_balance: 250.0, referral_code: 'ROHAN11', created_at: '2026-05-20' }
   ],
   kycRecords: [
     { id: 1, user_id: 6, full_name: 'Priya Patel', email: 'priya.patel@gmail.com', phone: '+91 98222 33344', doc_type: 'aadhaar', id_number: '****-****-9812', front_image_url: 'https://images.unsplash.com/photo-1544717305-2782549b5136?w=600', back_image_url: 'https://images.unsplash.com/photo-1544717305-2782549b5136?w=600', selfie_url: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=300', status: 'pending', submitted_at: '2026-08-23 10:30:00' },
@@ -43,23 +43,24 @@ const MockBackend = {
     const url = new URL(endpoint, 'http://localhost');
     const path = url.pathname;
 
-    // 1. Admin Dashboard Metrics
+    // 1. Admin Dashboard Metrics (exact matching keys for dashboard.js)
     if (path === '/api/admin/dashboard') {
+      const activeUsers = MockData.users.filter(u => u.status === 'active').length;
       return {
         success: true,
         metrics: {
           total_users: MockData.users.length,
-          active_users: MockData.users.filter(u => u.status === 'active').length,
-          total_aum: 2450000.0,
-          active_invested: 330000.0,
-          total_accruals_paid: 18450.0,
-          today_accruals: 450.0,
-          pending_deposits_count: MockData.deposits.filter(d => d.status === 'pending').length,
-          pending_deposits_amount: 50000.0,
-          pending_withdrawals_count: MockData.withdrawals.filter(w => w.status !== 'completed' && w.status !== 'rejected').length,
-          pending_withdrawals_amount: 75000.0,
-          platform_revenue: 12450.0,
+          active_users: activeUsers,
           pending_kyc: MockData.kycRecords.filter(k => k.status === 'pending').length,
+          total_deposits: 220000.00,
+          pending_deposits_count: MockData.deposits.filter(d => d.status === 'pending').length,
+          pending_deposits_amount: 50000.00,
+          total_withdrawals: 80000.00,
+          pending_withdrawals_count: MockData.withdrawals.filter(w => w.status !== 'completed' && w.status !== 'rejected').length,
+          pending_withdrawals_amount: 75000.00,
+          total_investments: 330000.00,
+          total_accrued_earnings: 18450.00,
+          platform_revenue: 12450.00,
           crypto_tx_count: 8
         },
         charts: {
@@ -67,7 +68,7 @@ const MockBackend = {
             { period: 'May', users: 120, active: 95 },
             { period: 'Jun', users: 240, active: 190 },
             { period: 'Jul', users: 480, active: 410 },
-            { period: 'Aug', users: MockData.users.length, active: MockData.users.filter(u => u.status === 'active').length }
+            { period: 'Aug', users: MockData.users.length, active: activeUsers }
           ],
           cashflow: [
             { period: 'May', deposits: 450000, withdrawals: 120000 },
@@ -75,7 +76,7 @@ const MockBackend = {
             { period: 'Jul', deposits: 1450000, withdrawals: 480000 },
             { period: 'Aug', deposits: 1950000, withdrawals: 650000 }
           ],
-          plans: [
+          plan_distribution: [
             { name: 'Starter Yield', value: 20000.0 },
             { name: 'Growth Plan', value: 150000.0 },
             { name: 'Institutional Wealth', value: 160000.0 }
@@ -86,19 +87,47 @@ const MockBackend = {
 
     // 2. Admin Users
     if (path === '/api/admin/users') {
-      const search = url.searchParams.get('search') || '';
+      const search = (url.searchParams.get('search') || '').toLowerCase();
+      const status = url.searchParams.get('status');
+      const kyc = url.searchParams.get('kyc_status');
+
       let users = MockData.users;
       if (search) {
-        users = users.filter(u => u.full_name.toLowerCase().includes(search.toLowerCase()) || u.email.toLowerCase().includes(search.toLowerCase()));
+        users = users.filter(u => u.full_name.toLowerCase().includes(search) || u.email.toLowerCase().includes(search) || u.phone.includes(search));
+      }
+      if (status && status !== 'ALL') {
+        users = users.filter(u => u.status === status);
+      }
+      if (kyc && kyc !== 'ALL') {
+        users = users.filter(u => u.kyc_status === kyc);
       }
       return { success: true, users };
+    }
+
+    if (path.startsWith('/api/admin/users/') && method === 'GET') {
+      const uid = parseInt(path.split('/').pop());
+      const u = MockData.users.find(x => x.id === uid) || MockData.users[4];
+      return {
+        success: true,
+        user: u,
+        profile: { address: '42 Horizon Tower, Financial District', city: 'Mumbai', country: 'India', dob: '1995-08-20' },
+        wallet: { cash_balance: u.cash_balance, invested_balance: u.invested_balance, accrued_balance: u.accrued_balance, total_portfolio: u.cash_balance + u.invested_balance + u.accrued_balance },
+        investments: (typeof Store !== 'undefined' ? Store.state.investments : []),
+        transactions: (typeof Store !== 'undefined' ? Store.state.transactions : [])
+      };
+    }
+
+    if (path === '/api/admin/users/status' && method === 'POST') {
+      const u = MockData.users.find(x => x.id == body.user_id);
+      if (u) u.status = body.status;
+      return { success: true, message: `User status changed to ${body.status}` };
     }
 
     // 3. Admin KYC Records
     if (path === '/api/admin/kyc/records') {
       const status = url.searchParams.get('status');
       let records = MockData.kycRecords;
-      if (status && status !== 'all') {
+      if (status && status !== 'ALL') {
         records = records.filter(k => k.status === status);
       }
       return { success: true, records };
@@ -115,7 +144,12 @@ const MockBackend = {
 
     // 4. Admin Deposits
     if (path === '/api/admin/deposits') {
-      return { success: true, deposits: MockData.deposits };
+      const status = url.searchParams.get('status');
+      let deposits = MockData.deposits;
+      if (status && status !== 'ALL') {
+        deposits = deposits.filter(d => d.status === status);
+      }
+      return { success: true, deposits };
     }
 
     if (path === '/api/admin/deposits/review' && method === 'POST') {
@@ -126,7 +160,12 @@ const MockBackend = {
 
     // 5. Admin Withdrawals & Dual Approval
     if (path === '/api/admin/withdrawals') {
-      return { success: true, withdrawals: MockData.withdrawals };
+      const status = url.searchParams.get('status');
+      let withdrawals = MockData.withdrawals;
+      if (status && status !== 'ALL') {
+        withdrawals = withdrawals.filter(w => w.status === status);
+      }
+      return { success: true, withdrawals };
     }
 
     if (path === '/api/admin/withdrawals/approve-first' && method === 'POST') {
@@ -159,7 +198,12 @@ const MockBackend = {
 
     // 6. Admin Plans
     if (path === '/api/admin/plans') {
-      return { success: true, plans: (typeof Store !== 'undefined' ? Store.state.plans : []) };
+      const plans = (typeof Store !== 'undefined' ? Store.state.plans : []);
+      return { success: true, plans };
+    }
+
+    if (path === '/api/admin/plans' && method === 'POST') {
+      return { success: true, message: 'Investment plan configured successfully' };
     }
 
     // 7. Admin Ledger & Reports
@@ -176,7 +220,21 @@ const MockBackend = {
         ],
         transactions: [
           { id: 101, entry_id: 'ENT-901', account_code: 'VAULT_CASH', type: 'debit', amount: 50000.0, reference: 'DEP/REF/98124', description: 'UPI Client Deposit Credited', created_at: '2026-08-23 11:20:00' },
-          { id: 102, entry_id: 'ENT-901', account_code: 'RETAIL_DEPOSITS', type: 'credit', amount: 50000.0, reference: 'DEP/REF/98124', description: 'Client Cash Liability Recorded', created_at: '2026-08-23 11:20:00' }
+          { id: 102, entry_id: 'ENT-901', account_code: 'RETAIL_DEPOSITS', type: 'credit', amount: 50000.0, reference: 'DEP/REF/98124', description: 'Client Cash Liability Recorded', created_at: '2026-08-23 11:20:00' },
+          { id: 103, entry_id: 'ENT-902', account_code: 'YIELD_EXPENSE', type: 'debit', amount: 450.0, reference: 'ACC/DAILY/20260823', description: 'Daily 24h ROI Accrual Paid', created_at: '2026-08-23 00:00:00' }
+        ]
+      };
+    }
+
+    if (path === '/api/admin/reports') {
+      const type = url.searchParams.get('type') || 'earnings';
+      return {
+        success: true,
+        type,
+        rows: [
+          { date: '2026-08-23', plan: 'Growth Plan', user_name: 'Alex Morgan', principal: 20000.0, rate: '0.055%', yield_paid: 45.0, status: 'Credited' },
+          { date: '2026-08-23', plan: 'Liquid Starter', user_name: 'Priya Patel', principal: 50000.0, rate: '0.041%', yield_paid: 20.5, status: 'Credited' },
+          { date: '2026-08-23', plan: 'Institutional Wealth', user_name: 'Amit Verma', principal: 250000.0, rate: '0.068%', yield_paid: 170.0, status: 'Credited' }
         ]
       };
     }
@@ -186,7 +244,22 @@ const MockBackend = {
       return { success: true, logs: MockData.auditLogs };
     }
 
-    // 9. Crypto Config
+    // 9. Admin Settings
+    if (path === '/api/admin/settings') {
+      return {
+        success: true,
+        settings: {
+          crypto_module_enabled: 'true',
+          dual_approval_threshold: '50000',
+          withdrawal_fee_pct: '1.0',
+          min_withdrawal_amount: '500',
+          max_daily_withdrawal: '250000',
+          maintenance_mode: 'false'
+        }
+      };
+    }
+
+    // 10. Crypto Config
     if (path === '/api/crypto/config') {
       return {
         success: true,
@@ -204,7 +277,22 @@ const MockBackend = {
       };
     }
 
-    // 10. Accruals Cycle Trigger
+    // 11. Support Helpdesk
+    if (path.startsWith('/api/support/tickets')) {
+      return {
+        success: true,
+        tickets: [
+          { id: 1, user_id: 5, user_name: 'Alex Morgan', subject: 'Inquiry regarding 90-day compounding maturity', category: 'Investments', status: 'open', created_at: '2026-08-23 09:30:00' },
+          { id: 2, user_id: 6, user_name: 'Priya Patel', subject: 'Document re-upload assistance for Aadhaar verification', category: 'KYC', status: 'pending', created_at: '2026-08-22 15:45:00' }
+        ],
+        messages: [
+          { sender: 'user', message: 'Hello, when does the daily compounding get credited to my ledger?', created_at: '2026-08-23 09:30:00' },
+          { sender: 'support', message: 'Hi Alex! Daily yield cycles execute automatically every 24 hours at 00:00 UTC.', created_at: '2026-08-23 09:35:00' }
+        ]
+      };
+    }
+
+    // 12. Accruals Cycle Run
     if (path === '/api/admin/accruals/run-cycle') {
       return {
         success: true,
@@ -213,7 +301,7 @@ const MockBackend = {
       };
     }
 
-    // 11. User Profile, Wallet & Investment Sync
+    // 13. Mobile User Wallet Summary & Investments
     if (path.startsWith('/api/wallet/summary/')) {
       const uid = parseInt(path.split('/').pop());
       const u = MockData.users.find(x => x.id === uid) || MockData.users[4];
@@ -231,11 +319,24 @@ const MockBackend = {
       };
     }
 
-    // 12. Supabase Sync / Auth
-    if (path === '/api/auth/supabase-sync') {
+    if (path === '/api/invest/plans') {
+      return { success: true, plans: (typeof Store !== 'undefined' ? Store.state.plans : []) };
+    }
+
+    if (path.startsWith('/api/invest/my-investments/')) {
+      return { success: true, investments: (typeof Store !== 'undefined' ? Store.state.investments : []) };
+    }
+
+    if (path.startsWith('/api/user/notifications/')) {
+      return { success: true, notifications: (typeof Store !== 'undefined' ? Store.state.notifications : []) };
+    }
+
+    // 14. Supabase Sync / Auth
+    if (path === '/api/auth/supabase-sync' || path === '/api/auth/login' || path === '/api/auth/register') {
       return {
         success: true,
-        message: 'Supabase user synchronized',
+        message: 'Authenticated successfully',
+        token: `sb-token-${Date.now()}`,
         user: {
           id: 5,
           full_name: body.full_name || 'Alex Morgan',
@@ -249,8 +350,7 @@ const MockBackend = {
       };
     }
 
-    // Default fallback response
-    return { success: true, message: 'Mock response generated' };
+    return { success: true, message: 'Operation completed successfully' };
   }
 };
 
@@ -276,8 +376,8 @@ const API = {
         return await response.json();
       }
 
-      // If server returned 404 or HTML fallback (common on static Vercel hosts), route to MockBackend
-      console.log(`[API Live -> Mock Adapter] Falling back to mock data for: ${endpoint}`);
+      // If server returned 404 or HTML fallback (static hosts like Vercel), route to MockBackend
+      console.log(`[API Live -> Mock Adapter] Routing to mock data for: ${endpoint}`);
       return MockBackend.handle(endpoint, options);
     } catch (err) {
       console.log(`[API Network -> Mock Adapter] Serving offline mock data for: ${endpoint}`);

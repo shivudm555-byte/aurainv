@@ -476,11 +476,11 @@ const Store = {
           this.emit('walletUpdated', this.state.wallet);
         }
 
-        if (pRes && pRes.success && pRes.plans.length > 0) {
+        if (pRes && pRes.success && Array.isArray(pRes.plans) && pRes.plans.length > 0) {
           this.state.plans = pRes.plans;
         }
 
-        if (iRes && iRes.success && iRes.investments.length > 0) {
+        if (iRes && iRes.success && Array.isArray(iRes.investments) && iRes.investments.length > 0) {
           this.state.investments = iRes.investments;
           this.emit('investmentsUpdated', this.state.investments);
         }
