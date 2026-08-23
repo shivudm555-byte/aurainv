@@ -1,0 +1,12 @@
+- `[x]` Updating build configuration
+    - `[x]` Fix compileSdk and targetSdk in `app/build.gradle`
+    - `[x]` Verify AGP version in root `build.gradle`
+- `[x]` Manifest Cleanup
+    - `[x]` Remove launcher intent-filter from `MainActivity`
+    - `[x]` Update `android:usesCleartextTraffic`
+- `[x]` Code Cleanup
+    - `[x]` Delete unused `MainActivity.kt`
+- `[x]` Release Build Verification
+    - `[x]` Run `./gradlew assembleRelease` (Verified: Fails only on missing keystore)
+- `[x]` Signing Configuration
+    - `[x]` Provide keystore generation guide

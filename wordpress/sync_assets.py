@@ -21,30 +21,25 @@ for f in os.listdir(os.path.join(src_frontend, 'js')):
     if os.path.isfile(src_f):
         shutil.copy2(src_f, os.path.join(dest_js, f))
 
+# Copy web JS
+dest_web = os.path.join(dest_js, 'web')
+os.makedirs(dest_web, exist_ok=True)
+if os.path.exists(os.path.join(src_frontend, 'js', 'web')):
+    for f in os.listdir(os.path.join(src_frontend, 'js', 'web')):
+        shutil.copy2(os.path.join(src_frontend, 'js', 'web', f), os.path.join(dest_web, f))
+
 # Copy mobile JS
 dest_mobile = os.path.join(dest_js, 'mobile')
 os.makedirs(dest_mobile, exist_ok=True)
-for f in os.listdir(os.path.join(src_frontend, 'js', 'mobile')):
-    shutil.copy2(os.path.join(src_frontend, 'js', 'mobile', f), os.path.join(dest_mobile, f))
+if os.path.exists(os.path.join(src_frontend, 'js', 'mobile')):
+    for f in os.listdir(os.path.join(src_frontend, 'js', 'mobile')):
+        shutil.copy2(os.path.join(src_frontend, 'js', 'mobile', f), os.path.join(dest_mobile, f))
 
 # Copy admin JS
 dest_admin = os.path.join(dest_js, 'admin')
 os.makedirs(dest_admin, exist_ok=True)
-for f in os.listdir(os.path.join(src_frontend, 'js', 'admin')):
-    shutil.copy2(os.path.join(src_frontend, 'js', 'admin', f), os.path.join(dest_admin, f))
-
-# 3. Update api.js in WordPress assets to check window.agy_wp_vars
-wp_api_file = os.path.join(dest_js, 'api.js')
-with open(wp_api_file, 'r', encoding='utf-8') as f:
-    content = f.read()
-
-wp_header = """// Check if running inside WordPress
-if (typeof window !== 'undefined' && window.agy_wp_vars && window.agy_wp_vars.rest_url) {
-  API.BASE_URL = window.agy_wp_vars.rest_url;
-}
-"""
-content = wp_header + content
-with open(wp_api_file, 'w', encoding='utf-8') as f:
-    f.write(content)
+if os.path.exists(os.path.join(src_frontend, 'js', 'admin')):
+    for f in os.listdir(os.path.join(src_frontend, 'js', 'admin')):
+        shutil.copy2(os.path.join(src_frontend, 'js', 'admin', f), os.path.join(dest_admin, f))
 
 print(f"Assets synchronized to {dest_assets} successfully!")

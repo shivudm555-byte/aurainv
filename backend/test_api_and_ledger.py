@@ -31,7 +31,7 @@ def run_tests():
 
     # 2. User Authentication
     login = request_json("/api/auth/login", method="POST", data={
-        "identifier": "rahul.sharma@gmail.com",
+        "identifier": "alex.morgan@aurafin.com",
         "password": "Fintech@123"
     })
     assert login.get("success") is True, f"Login failed: {login}"

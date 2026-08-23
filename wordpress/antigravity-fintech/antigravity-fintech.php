@@ -2,7 +2,7 @@
 /**
  * Plugin Name: Antigravity Fintech — Modern Investment Platform & Admin Control Center
  * Plugin URI: https://github.com/shivudm555-byte/invest
- * Description: An institutional-grade fintech mobile investment platform, double-entry financial accounting ledger, dual-admin withdrawal authorization, Supabase email auth, and interactive administrative control center.
+ * Description: An institutional-grade fintech mobile & desktop investment platform, double-entry financial accounting ledger, dual-admin withdrawal authorization, Supabase email auth, and interactive administrative control center.
  * Version: 2.5.0
  * Author: Antigravity Deepmind & shivudm555-byte
  * Author URI: https://github.com/shivudm555-byte
@@ -24,6 +24,7 @@ define('AGY_FINTECH_PLUGIN_BASENAME', plugin_basename(__FILE__));
 
 // Autoload Core Classes
 require_once AGY_FINTECH_PLUGIN_DIR . 'includes/class-database.php';
+require_once AGY_FINTECH_PLUGIN_DIR . 'includes/class-roles.php';
 require_once AGY_FINTECH_PLUGIN_DIR . 'includes/class-ledger-engine.php';
 require_once AGY_FINTECH_PLUGIN_DIR . 'includes/class-rest-api.php';
 require_once AGY_FINTECH_PLUGIN_DIR . 'includes/class-admin-menu.php';
@@ -57,6 +58,7 @@ class Antigravity_Fintech {
     public function activate() {
         AGY_Database::create_tables();
         AGY_Database::seed_initial_data();
+        AGY_Roles::register_roles();
         AGY_Cron::schedule_events();
         flush_rewrite_rules();
     }
@@ -68,6 +70,7 @@ class Antigravity_Fintech {
 
     public function init() {
         // Initialize REST API & Admin
+        AGY_Roles::init();
         AGY_REST_API::init();
         AGY_Admin_Menu::init();
         AGY_Cron::init();
@@ -102,16 +105,17 @@ class Antigravity_Fintech {
         wp_enqueue_script('agy-mobile-referral', AGY_FINTECH_PLUGIN_URL . 'assets/js/mobile/referral.js', array('agy-store-js'), AGY_FINTECH_VERSION, true);
         wp_enqueue_script('agy-mobile-profile', AGY_FINTECH_PLUGIN_URL . 'assets/js/mobile/profile.js', array('agy-store-js'), AGY_FINTECH_VERSION, true);
         wp_enqueue_script('agy-mobile-support', AGY_FINTECH_PLUGIN_URL . 'assets/js/mobile/support.js', array('agy-store-js'), AGY_FINTECH_VERSION, true);
+        wp_enqueue_script('agy-mobile-auth', AGY_FINTECH_PLUGIN_URL . 'assets/js/mobile/auth_flow.js', array('agy-store-js'), AGY_FINTECH_VERSION, true);
         wp_enqueue_script('agy-mobile-router', AGY_FINTECH_PLUGIN_URL . 'assets/js/mobile/router.js', array('agy-store-js'), AGY_FINTECH_VERSION, true);
 
-        // Admin Controllers
+        // Admin JS Controllers
         wp_enqueue_script('agy-admin-dash', AGY_FINTECH_PLUGIN_URL . 'assets/js/admin/dashboard.js', array('agy-store-js'), AGY_FINTECH_VERSION, true);
         wp_enqueue_script('agy-admin-users', AGY_FINTECH_PLUGIN_URL . 'assets/js/admin/user_mgmt.js', array('agy-store-js'), AGY_FINTECH_VERSION, true);
         wp_enqueue_script('agy-admin-kyc', AGY_FINTECH_PLUGIN_URL . 'assets/js/admin/kyc_mgmt.js', array('agy-store-js'), AGY_FINTECH_VERSION, true);
         wp_enqueue_script('agy-admin-invest', AGY_FINTECH_PLUGIN_URL . 'assets/js/admin/invest_mgmt.js', array('agy-store-js'), AGY_FINTECH_VERSION, true);
         wp_enqueue_script('agy-admin-earnings', AGY_FINTECH_PLUGIN_URL . 'assets/js/admin/earnings_mgmt.js', array('agy-store-js'), AGY_FINTECH_VERSION, true);
         wp_enqueue_script('agy-admin-deposits', AGY_FINTECH_PLUGIN_URL . 'assets/js/admin/deposit_mgmt.js', array('agy-store-js'), AGY_FINTECH_VERSION, true);
-        wp_enqueue_script('agy-admin-withdrawals', AGY_FINTECH_PLUGIN_URL . 'assets/js/admin/withdraw_mgmt.js', array('agy-store-js'), AGY_FINTECH_VERSION, true);
+        wp_enqueue_script('agy-admin-withdraw', AGY_FINTECH_PLUGIN_URL . 'assets/js/admin/withdraw_mgmt.js', array('agy-store-js'), AGY_FINTECH_VERSION, true);
         wp_enqueue_script('agy-admin-crypto', AGY_FINTECH_PLUGIN_URL . 'assets/js/admin/crypto_mgmt.js', array('agy-store-js'), AGY_FINTECH_VERSION, true);
         wp_enqueue_script('agy-admin-ledger', AGY_FINTECH_PLUGIN_URL . 'assets/js/admin/ledger_view.js', array('agy-store-js'), AGY_FINTECH_VERSION, true);
         wp_enqueue_script('agy-admin-reports', AGY_FINTECH_PLUGIN_URL . 'assets/js/admin/reports.js', array('agy-store-js'), AGY_FINTECH_VERSION, true);
@@ -120,14 +124,12 @@ class Antigravity_Fintech {
         wp_enqueue_script('agy-admin-nav', AGY_FINTECH_PLUGIN_URL . 'assets/js/admin/admin_nav.js', array('agy-store-js'), AGY_FINTECH_VERSION, true);
 
         // App Bootstrapper
-        wp_enqueue_script('agy-app-js', AGY_FINTECH_PLUGIN_URL . 'assets/js/app.js', array('agy-mobile-router', 'agy-admin-nav'), AGY_FINTECH_VERSION, true);
+        wp_enqueue_script('agy-app-js', AGY_FINTECH_PLUGIN_URL . 'assets/js/app.js', array('agy-web-portal', 'agy-admin-nav'), AGY_FINTECH_VERSION, true);
 
-        // Localize Script with WP REST API URL & Nonce
-        wp_localize_script('agy-api-js', 'agy_wp_vars', array(
-            'rest_url' => esc_url_raw(rest_url('antigravity/v1')),
-            'nonce'    => wp_create_nonce('wp_rest'),
-            'ajax_url' => admin_url('admin-ajax.php'),
-            'user_id'  => get_current_user_id()
+        // Localize Script for REST Nonces
+        wp_localize_script('agy-api-js', 'agy_settings', array(
+            'root'  => esc_url_raw(rest_url('antigravity/v1/')),
+            'nonce' => wp_create_nonce('wp_rest')
         ));
     }
 
@@ -138,5 +140,8 @@ class Antigravity_Fintech {
     }
 }
 
-// Instantiate Plugin
-Antigravity_Fintech::get_instance();
+// Initialize Singleton
+function Antigravity_Fintech_Init() {
+    return Antigravity_Fintech::get_instance();
+}
+Antigravity_Fintech_Init();

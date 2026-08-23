@@ -19,13 +19,13 @@ const App = {
     this.setupThemeToggle();
 
     // 3. Initial View Rendering
-    WebPortal.setActiveTab('dashboard');
+    WebPortal.setActiveTab('home');
     Store.refreshAllData();
 
     // 4. Data Refresh Listener
     Store.on('dataRefreshed', () => {
       if (!this.isAdminMode && typeof WebPortal !== 'undefined') {
-        WebPortal.setActiveTab(WebPortal.activeTab);
+        WebPortal.renderCurrentView();
       } else if (this.isAdminMode && typeof AdminNav !== 'undefined') {
         AdminNav.setActiveTab(Store.state.currentAdminTab);
       }
@@ -46,7 +46,7 @@ const App = {
       if (adminWrapper) adminWrapper.style.display = 'flex';
       if (navMenu) navMenu.style.opacity = '0.4';
       if (toggleBtn) {
-        toggleBtn.innerHTML = `<span>👤</span> Customer Web Portal`;
+        toggleBtn.innerHTML = `<span>👤</span> Public Web Portal`;
         toggleBtn.className = 'btn btn-primary btn-sm';
       }
       AdminNav.setActiveTab(Store.state.currentAdminTab || 'dashboard');
@@ -59,8 +59,8 @@ const App = {
         toggleBtn.innerHTML = `<span>🖥️</span> Admin Panel`;
         toggleBtn.className = 'btn btn-secondary btn-sm';
       }
-      WebPortal.setActiveTab(WebPortal.activeTab || 'dashboard');
-      Store.showToast('Switched to Customer Investment Portal', 'info');
+      WebPortal.setActiveTab(WebPortal.activeTab || 'home');
+      Store.showToast('Switched to Public Website & Investor Portal', 'info');
     }
   },
 
@@ -77,7 +77,7 @@ const App = {
           Store.showToast(`Switched active user to ${res.user.full_name}`, 'info');
           await Store.refreshAllData();
           if (!this.isAdminMode) {
-            WebPortal.setActiveTab(WebPortal.activeTab);
+            WebPortal.renderCurrentView();
           }
         }
       } catch (err) {
@@ -100,14 +100,7 @@ const App = {
   }
 };
 
-// Start application when DOM is ready
+// Auto-run on DOMContentLoaded
 document.addEventListener('DOMContentLoaded', () => {
   App.init();
-
-  // Register Service Worker
-  if ('serviceWorker' in navigator && window.location.protocol.startsWith('http')) {
-    navigator.serviceWorker.register('/sw.js').catch((err) => {
-      console.log('SW registration note:', err);
-    });
-  }
 });

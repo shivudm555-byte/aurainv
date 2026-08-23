@@ -1,10 +1,29 @@
 /*
-Theme Name: Antigravity Fintech Theme
+Theme Name: Antigravity Fintech — Modern Investment Platform & Digital Assets Theme
 Theme URI: https://github.com/shivudm555-byte/invest
 Author: Antigravity Deepmind & shivudm555-byte
 Author URI: https://github.com/shivudm555-byte
-Description: High-performance standalone WordPress theme for modern fintech investment platforms with connected mobile app simulator and executive admin control center.
+Description: An institutional-grade, modern fintech WordPress theme engineered for investment platforms, double-entry financial ledger accounting, digital assets custody, multi-tiered KYC verification, and administrative controls.
 Version: 2.5.0
+Requires at least: 5.8
+Tested up to: 6.7
+Requires PHP: 7.4
 License: GNU General Public License v2 or later
+License URI: http://www.gnu.org/licenses/gpl-2.0.html
 Text Domain: antigravity-fintech-theme
+Tags: fintech, investment, crypto, digital-assets, dark-mode, responsive, full-width, custom-menu, translation-ready, e-commerce, dashboard
 */
+
+/* Minimal reset for standalone theme operation */
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  background-color: #0a0d14;
+  color: #f8fafc;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  overflow-x: hidden;
+}

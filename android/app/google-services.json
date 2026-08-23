@@ -1,0 +1,53 @@
+{
+  "project_info": {
+    "project_number": "109823471092",
+    "project_id": "antigravity-fintech-sandbox",
+    "storage_bucket": "antigravity-fintech-sandbox.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:109823471092:android:5f7c32e81d4b6a902e4",
+        "android_client_info": {
+          "package_name": "io.antigravity.fintech"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "109823471092-sandboxsampleclientid.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSySandboxKeyForAntigravityFintechAndroidApp001"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:109823471092:android:5f7c32e81d4b6a902e4debug",
+        "android_client_info": {
+          "package_name": "io.antigravity.fintech.debug"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSySandboxKeyForAntigravityFintechAndroidApp001"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

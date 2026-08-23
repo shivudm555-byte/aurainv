@@ -75,9 +75,9 @@ def seed_all():
         (2, 'Meera Nambiar', 'finance@fintech.com', '+91 98765 00002', 'finance_admin', 'active', 'approved', 1, 'FIN002', None),
         (3, 'Suresh Iyer', 'kyc@fintech.com', '+91 98765 00003', 'kyc_admin', 'active', 'approved', 0, 'KYC003', None),
         (4, 'Ananya Sen', 'ops@fintech.com', '+91 98765 00004', 'ops_admin', 'active', 'approved', 1, 'OPS004', None),
-        (5, 'Rahul Sharma', 'rahul.sharma@gmail.com', '+91 98111 22233', 'user', 'active', 'approved', 1, 'RAHUL77', None),
-        (6, 'Priya Patel', 'priya.patel@gmail.com', '+91 98222 33344', 'user', 'active', 'pending', 0, 'PRIYA88', 'RAHUL77'),
-        (7, 'Amit Verma', 'amit.verma@investor.com', '+91 98333 44455', 'user', 'active', 'approved', 1, 'AMIT99', 'RAHUL77'),
+        (5, 'Alex Morgan', 'alex.morgan@aurafin.com', '+91 98111 22233', 'user', 'active', 'approved', 1, 'ALEX2026', None),
+        (6, 'Priya Patel', 'priya.patel@gmail.com', '+91 98222 33344', 'user', 'active', 'pending', 0, 'PRIYA88', 'ALEX2026'),
+        (7, 'Amit Verma', 'amit.verma@investor.com', '+91 98333 44455', 'user', 'active', 'approved', 1, 'AMIT99', 'ALEX2026'),
         (8, 'Kavita Reddy', 'kavita.reddy@techcorp.in', '+91 98444 55566', 'user', 'active', 'rejected', 0, 'KAVITA55', None),
         (9, 'Rohan Merchant', 'rohan.merchant@gmail.com', '+91 98555 66677', 'user', 'suspended', 'approved', 0, 'ROHAN11', None)
     ]
@@ -96,7 +96,7 @@ def seed_all():
         # User Profile
         cursor.execute("""
         INSERT OR IGNORE INTO user_profiles (user_id, dob, address, city, state, country, postal_code, avatar_url)
-        VALUES (?, '1992-06-15', 'Flat 402, Cyber Heights, Hitec City', 'Hyderabad', 'Telangana', 'India', '500081', 
+        VALUES (?, '1995-08-20', '42 Horizon Tower, Financial District', 'Mumbai', 'Maharashtra', 'India', '400051', 
         'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150')
         """, (u[0],))
 
@@ -123,8 +123,8 @@ def seed_all():
         """, k)
 
     # 6. Post Deposits into Ledger & Record Deposit Objects
-    # Rahul Sharma: Deposit ₹75,000 via UPI
-    dep1_amt = 75000.0
+    # Alex Morgan: Initial Deposit ₹25,450 via UPI
+    dep1_amt = 25450.0
     cursor.execute("""
     INSERT OR IGNORE INTO deposits (
         deposit_code, user_id, amount, fee, net_amount, payment_method, utr_ref, status, approved_by, approved_at
@@ -136,7 +136,7 @@ def seed_all():
             {'account_code': 'CASH_INR', 'debit': 0.0, 'credit': dep1_amt},
             {'account_code': 'PLATFORM_REVENUE', 'debit': dep1_amt, 'credit': 0.0} # Source liability matching
         ],
-        description="Approved UPI Deposit ₹75,000",
+        description="Approved UPI Deposit ₹25,450",
         reference_id='DEP-2026-001',
         created_by='FINANCE_ADMIN'
     )
@@ -167,17 +167,17 @@ def seed_all():
     """)
 
     # 7. Create Active User Investments
-    # Rahul Sharma invests ₹50,000 in Liquid Starter Growth
-    inv1_amt = 50000.0
-    start_d1 = datetime.utcnow() - timedelta(days=12)
-    mat_d1 = start_d1 + timedelta(days=30)
-    accrued1 = round(inv1_amt * 0.00041 * 12, 2) # 12 days of accrual = ₹246.00
+    # Alex Morgan invests ₹20,000 in Growth Plan (Growth Alpha)
+    inv1_amt = 20000.0
+    start_d1 = datetime.utcnow() - timedelta(days=45)
+    mat_d1 = start_d1 + timedelta(days=90)
+    accrued1 = 450.00 # Exactly ₹450.00 accrued earnings (+1.78% return on total)
     
     cursor.execute("""
     INSERT OR IGNORE INTO user_investments (
         investment_code, user_id, plan_id, principal_amount, daily_roi_pct, total_accrued,
         start_date, maturity_date, status, last_accrual_date
-    ) VALUES ('INV-2026-101', 5, 1, ?, 0.041, ?, ?, ?, 'active', CURRENT_TIMESTAMP)
+    ) VALUES ('INV-2026-101', 5, 2, ?, 0.055, ?, ?, ?, 'active', CURRENT_TIMESTAMP)
     """, (inv1_amt, accrued1, start_d1, mat_d1))
     
     # Ledger for Investment: Move from Cash to Investment Principal
@@ -187,9 +187,9 @@ def seed_all():
             {'account_code': 'CASH_INR', 'debit': inv1_amt, 'credit': 0.0},
             {'account_code': 'INVESTMENT_PRINCIPAL', 'debit': 0.0, 'credit': inv1_amt}
         ],
-        description="Invested ₹50,000 in Liquid Starter Growth",
+        description="Invested ₹20,000 in Growth Plan",
         reference_id='INV-2026-101',
-        created_by='USER_RAHUL'
+        created_by='USER_ALEX'
     )
 
     # Post Accrued Earnings to Ledger
@@ -199,7 +199,7 @@ def seed_all():
             {'account_code': 'PLATFORM_REVENUE', 'debit': accrued1, 'credit': 0.0},
             {'account_code': 'ACCRUED_EARNINGS', 'debit': 0.0, 'credit': accrued1}
         ],
-        description=f"Accrued daily returns (12 cycles) for INV-2026-101",
+        description=f"Accrued earnings (+₹450.00) for Growth Plan INV-2026-101",
         reference_id='INV-2026-101',
         created_by='ACCRUAL_ENGINE'
     )
@@ -238,46 +238,45 @@ def seed_all():
         created_by='ACCRUAL_ENGINE'
     )
 
-    # 8. Referral Commission for Rahul Sharma (Amit Verma was referred by Rahul)
-    ref_commission = 7500.0 # 5% of ₹150,000
+    # 8. Referral Program Record for Alex Morgan
+    ref_commission = 1250.0 # 5% referral reward from invited investor
     cursor.execute("""
     INSERT OR IGNORE INTO referral_commissions (
         referrer_id, referee_id, investment_id, commission_amount, commission_pct, status
-    ) VALUES (5, 7, 2, ?, 5.0, 'paid')
+    ) VALUES (5, 6, 1, ?, 5.0, 'paid')
     """, (ref_commission,))
     
     LedgerEngine.post_transaction(
         cursor, user_id=5, transaction_type='REFERRAL_COMMISSION',
         entries=[
             {'account_code': 'PLATFORM_REVENUE', 'debit': ref_commission, 'credit': 0.0},
-            {'account_code': 'CASH_INR', 'debit': 0.0, 'credit': ref_commission} # Directly credited to available cash
+            {'account_code': 'REFERRAL_EARNINGS', 'debit': 0.0, 'credit': ref_commission}
         ],
-        description="5% Referral Commission from referee Amit Verma investment",
+        description="5% Referral Commission from referee Priya Patel investment",
         reference_id='REF-COMM-001',
         created_by='REFERRAL_ENGINE'
     )
 
-    # 9. Create Withdrawals (Normal completed, Pending standard, and High-Value Pending Dual Approval)
-    # Rahul Sharma normal completed withdrawal ₹5,000
-    w1_amt = 5000.0
-    w1_fee = 50.0
+    # 9. Create Withdrawals (Normal completed for User 7, Pending standard, and High-Value Pending Dual Approval)
+    w1_amt = 10000.0
+    w1_fee = 100.0
     cursor.execute("""
     INSERT OR IGNORE INTO withdrawals (
         withdrawal_code, user_id, amount, fee, net_amount, payout_method, destination_details,
         status, requires_dual_approval, first_approval_by, first_approval_at, first_approval_admin_name,
         final_approval_by, final_approval_at, final_approval_admin_name
-    ) VALUES ('WDL-2026-001', 5, ?, ?, ?, 'BANK_TRANSFER', '{"bank": "HDFC Bank", "acc": "50100290005890", "ifsc": "HDFC0001234"}',
+    ) VALUES ('WDL-2026-001', 7, ?, ?, ?, 'BANK_TRANSFER', '{"bank": "HDFC Bank", "acc": "50100290007890", "ifsc": "HDFC0001234"}',
     'completed', 0, 2, CURRENT_TIMESTAMP, 'Meera Nambiar (Finance)', 2, CURRENT_TIMESTAMP, 'Meera Nambiar (Finance)')
     """, (w1_amt, w1_fee, w1_amt - w1_fee))
     
     LedgerEngine.post_transaction(
-        cursor, user_id=5, transaction_type='WITHDRAWAL',
+        cursor, user_id=7, transaction_type='WITHDRAWAL',
         entries=[
             {'account_code': 'CASH_INR', 'debit': w1_amt, 'credit': 0.0},
             {'account_code': 'PLATFORM_FEES', 'debit': 0.0, 'credit': w1_fee},
             {'account_code': 'PLATFORM_REVENUE', 'debit': 0.0, 'credit': w1_amt - w1_fee}
         ],
-        description="Processed Bank Withdrawal of ₹5,000 (Fee ₹50)",
+        description="Processed Bank Withdrawal of ₹10,000 (Fee ₹100)",
         reference_id='WDL-2026-001',
         created_by='FINANCE_ADMIN'
     )
