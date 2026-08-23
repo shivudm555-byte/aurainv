@@ -1,0 +1,13 @@
+{
+  "mcpServers": {
+    "supabase-auth": {
+      "command": "python",
+      "args": ["backend/mcp_supabase_auth_server.py"],
+      "env": {
+        "SUPABASE_URL": "https://hcvckfirqlggamffsrvc.supabase.co",
+        "SUPABASE_ANON_KEY": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImhjdmNrZmlycWxnZ2FtZmZzcnZjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODcxNTcxNjYsImV4cCI6MjEwMjczMzE2Nn0.TR0wutoferxUXY6Uj-ZuOFhQmIbhq_yK_uHYpBmYc60",
+        "SUPABASE_PUBLISHABLE_KEY": "sb_publishable_qjL7djPcOPznZm-Nsu9Lgw_H0CUZ3cx"
+      }
+    }
+  }
+}

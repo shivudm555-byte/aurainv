@@ -21,6 +21,10 @@ def supabase_sync():
     if not email:
         return jsonify({'success': False, 'message': 'Email is required'}), 400
 
+    if not phone or phone == '+91 98000 00000':
+        phone_seed = int(hashlib.sha256(email.encode('utf-8')).hexdigest()[:8], 16) % 900000000 + 100000000
+        phone = f"+91 9{phone_seed}"
+
     conn = get_db()
     cursor = conn.cursor()
 
@@ -28,6 +32,11 @@ def supabase_sync():
     user = cursor.fetchone()
 
     if not user:
+        # Check if phone is in use
+        cursor.execute("SELECT id FROM users WHERE phone = ?", (phone,))
+        if cursor.fetchone():
+            phone = f"+91 9{uuid.uuid4().int % 900000000 + 100000000}"
+
         # Provision new user from Supabase Auth
         new_referral_code = f"{full_name[:3].upper()}{uuid.uuid4().hex[:4].upper()}"
         pw_hash = hash_val(f"supabase_{supabase_uid or email}")
@@ -78,7 +87,58 @@ def supabase_sync():
         'user': user_dict
     })
 
+
+@auth_bp.route('/api/auth/supabase-login', methods=['POST'])
+def supabase_login_proxy():
+    data = request.get_json() or {}
+    email = data.get('email', '').strip().lower()
+    password = data.get('password', '')
+
+    if not email or not password:
+        return jsonify({'success': False, 'message': 'Email and password are required'}), 400
+
+    from mcp_supabase_auth_server import tool_supabase_email_login
+    res = tool_supabase_email_login(email, password)
+    if not res.get('success'):
+        return jsonify({'success': False, 'message': res.get('error', 'Supabase authentication failed')}), 401
+
+    return jsonify(res)
+
+
+@auth_bp.route('/api/auth/supabase-signup', methods=['POST'])
+def supabase_signup_proxy():
+    data = request.get_json() or {}
+    email = data.get('email', '').strip().lower()
+    password = data.get('password', '')
+    full_name = data.get('full_name', '').strip()
+    phone = data.get('phone', '').strip()
+    referral_code = data.get('referral_code', '').strip()
+
+    if not email or not password:
+        return jsonify({'success': False, 'message': 'Email and password are required'}), 400
+
+    from mcp_supabase_auth_server import tool_supabase_email_signup
+    res = tool_supabase_email_signup(email, password, full_name, phone, referral_code)
+    if not res.get('success'):
+        return jsonify({'success': False, 'message': res.get('error', 'Supabase registration failed')}), 400
+
+    return jsonify(res)
+
+
+@auth_bp.route('/api/auth/supabase-otp', methods=['POST'])
+def supabase_otp_proxy():
+    data = request.get_json() or {}
+    email = data.get('email', '').strip().lower()
+    if not email:
+        return jsonify({'success': False, 'message': 'Email is required'}), 400
+
+    from mcp_supabase_auth_server import tool_supabase_send_magic_link_or_otp
+    res = tool_supabase_send_magic_link_or_otp(email)
+    return jsonify(res)
+
+
 @auth_bp.route('/api/auth/register', methods=['POST'])
+
 def register():
     data = request.get_json() or {}
     full_name = data.get('full_name', '').strip()
